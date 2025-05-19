@@ -3,11 +3,12 @@ package org.acme.produto
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
+import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
-import org.acme.produto.ProdutoService
 
 @Path("/produtos")
 @Produces("application/json")
@@ -22,4 +23,10 @@ class ProdutoResource {
 
     @POST
     fun adicionar(@Valid produto: Produto): Produto = produtoService.adicionar(produto)
+
+    @PUT
+    fun atualizar(@Valid produto: Produto): Produto = produtoService.atualizar(produto)
+
+    @DELETE
+    fun remover(@Valid produto: Produto): Produto = produtoService.exluir(produto)
 }
