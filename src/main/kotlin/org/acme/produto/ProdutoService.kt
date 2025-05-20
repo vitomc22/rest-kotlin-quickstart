@@ -3,6 +3,7 @@ package org.acme.produto
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
+import jakarta.ws.rs.NotFoundException
 
 @ApplicationScoped
 class ProdutoService {
@@ -19,8 +20,8 @@ class ProdutoService {
 
     @Transactional
     fun atualizar(produto: Produto): Produto {
-        val newProduto = produtoRepository.findById(produto.id!!)
-            ?: throw IllegalArgumentException("Produto ${produto.nome} não econtrado")
+        val newProduto =
+            produtoRepository.findById(produto.id!!) ?: throw NotFoundException("Produto ${produto.nome} não econtrado")
         newProduto.nome = produto.nome
         newProduto.preco = produto.preco
         produtoRepository.persistAndFlush(newProduto)
@@ -29,8 +30,7 @@ class ProdutoService {
 
     @Transactional
     fun exluir(produto: Produto): Produto {
-        val existingProduto = produtoRepository.findById(produto.id!!)
-        requireNotNull(existingProduto) { "Produto: ${produto.nome} nao encontrado" }
+        produtoRepository.findById(produto.id!!) ?: throw NotFoundException("Produto ${produto.nome} não econtrado")
         produtoRepository.deleteById(produto.id!!)
         return produto
     }

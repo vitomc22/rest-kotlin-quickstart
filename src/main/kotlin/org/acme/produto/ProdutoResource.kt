@@ -2,13 +2,9 @@ package org.acme.produto
 
 import jakarta.inject.Inject
 import jakarta.validation.Valid
-import jakarta.ws.rs.Consumes
-import jakarta.ws.rs.DELETE
-import jakarta.ws.rs.GET
-import jakarta.ws.rs.POST
-import jakarta.ws.rs.PUT
-import jakarta.ws.rs.Path
-import jakarta.ws.rs.Produces
+import jakarta.ws.rs.*
+import jakarta.ws.rs.core.Response
+
 
 @Path("/produtos")
 @Produces("application/json")
@@ -22,11 +18,20 @@ class ProdutoResource {
     fun listar(): List<Produto> = produtoService.listar()
 
     @POST
-    fun adicionar(@Valid produto: Produto): Produto = produtoService.adicionar(produto)
+    fun adicionar(@Valid produto: Produto): Response {
+        produtoService.adicionar(produto)
+        return Response.ok("Produto: ${produto.nome} criado com sucesso").build()
+    }
 
     @PUT
-    fun atualizar(@Valid produto: Produto): Produto = produtoService.atualizar(produto)
+    fun atualizar(@Valid produto: Produto): Response {
+        produtoService.atualizar(produto)
+        return Response.ok("Produto: ${produto.nome} atualizado com sucesso").build()
+    }
 
     @DELETE
-    fun remover(@Valid produto: Produto): Produto = produtoService.exluir(produto)
+    fun remover(@Valid produto: Produto): Response {
+        produtoService.exluir(produto)
+        return Response.noContent().build()
+    }
 }
