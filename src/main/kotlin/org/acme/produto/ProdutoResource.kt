@@ -19,19 +19,18 @@ class ProdutoResource {
 
     @POST
     fun adicionar(@Valid produto: Produto): Response {
-        produtoService.adicionar(produto)
-        return Response.ok("Produto: ${produto.nome} criado com sucesso").build()
+        return produtoService.adicionar(produto)
     }
 
     @PUT
     fun atualizar(@Valid produto: Produto): Response {
-        produtoService.atualizar(produto)
-        return Response.ok("Produto: ${produto.nome} atualizado com sucesso").build()
+        return produtoService.atualizar(produto)
+
     }
 
     @DELETE
     fun remover(@Valid produto: Produto): Response {
-        produtoService.exluir(produto)
-        return Response.noContent().build()
+        return produtoService.exluir(produto)
+
     }
 }
