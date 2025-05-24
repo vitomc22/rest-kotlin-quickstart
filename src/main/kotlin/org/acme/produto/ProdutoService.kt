@@ -17,6 +17,7 @@ class ProdutoService {
     fun listar(): List<Produto> = produtoRepository.listAll()
 
     fun buscar(id: Long): Produto {
+        producer.sendEvent("Produto ${id} buscado com sucesso")
         return produtoRepository.findById(id) ?: throw NotFoundException("Produto nao encontrado")
     }
 
@@ -34,6 +35,7 @@ class ProdutoService {
         newProduto.nome = produto.nome
         newProduto.preco = produto.preco
         produtoRepository.persistAndFlush(newProduto)
+        producer.sendEvent("Produto ${produto.nome} atualizado com sucesso")
         return Response.ok("Produto: ${produto.nome} atualizado com sucesso").build()
     }
 
@@ -41,6 +43,7 @@ class ProdutoService {
     fun exluir(produto: Produto): Response {
         produtoRepository.findById(produto.id!!) ?: throw NotFoundException("Produto ${produto.nome} não econtrado")
         produtoRepository.deleteById(produto.id!!)
+        producer.sendEvent("Produto ${produto.nome} excluido com sucesso")
         return Response.noContent().build()
     }
 

@@ -7,6 +7,7 @@ import org.jboss.logging.Logger
 @ApplicationScoped
 
 class ProdutoEventConsumer {
+
     private val log = Logger.getLogger(ProdutoEventConsumer::class.java)
 
     @Incoming("produto-events-consumer")
