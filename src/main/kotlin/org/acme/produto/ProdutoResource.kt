@@ -15,6 +15,13 @@ class ProdutoResource {
     lateinit var produtoService: ProdutoService
 
     @GET
+    @Path("/{id}")
+    fun buscarPorId(@PathParam("id") id: Long): Produto {
+        return produtoService.buscar(id)
+    }
+
+
+    @GET
     fun listar(): List<Produto> = produtoService.listar()
 
     @POST

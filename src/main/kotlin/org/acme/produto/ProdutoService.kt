@@ -11,18 +11,26 @@ class ProdutoService {
     @Inject
     lateinit var produtoRepository: ProdutoRepository
 
+    @Inject
+    lateinit var producer: ProdutoEventProducer
+
     fun listar(): List<Produto> = produtoRepository.listAll()
+
+    fun buscar(id: Long): Produto {
+        return produtoRepository.findById(id) ?: throw NotFoundException("Produto nao encontrado")
+    }
 
     @Transactional
     fun adicionar(produto: Produto): Response {
         produtoRepository.persist(produto)
-        return Response.ok(produto).build()
+        producer.sendEvent("Produto ${produto.nome} adicionado com sucesso")
+        return Response.status(Response.Status.CREATED).entity(produto).build()
     }
 
     @Transactional
     fun atualizar(produto: Produto): Response {
-        val newProduto = produtoRepository.findById(produto.id!!)
-        ?: throw NotFoundException("Produto ${produto.nome} não econtrado")
+        val newProduto =
+            produtoRepository.findById(produto.id!!) ?: throw NotFoundException("Produto ${produto.nome} não econtrado")
         newProduto.nome = produto.nome
         newProduto.preco = produto.preco
         produtoRepository.persistAndFlush(newProduto)

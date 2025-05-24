@@ -22,7 +22,7 @@ class ProdutoResourceTest {
                 }
         """.trimIndent()
 
-        RestAssured.given().contentType("application/json").body(json).`when`().post("/produtos").then().statusCode(200)
+        RestAssured.given().contentType("application/json").body(json).`when`().post("/produtos").then().statusCode(201)
             .body(CoreMatchers.containsString("Livro"))
     }
 
