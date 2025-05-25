@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.Response
 @Path("/produtos")
 @Produces("application/json")
 @Consumes("application/json")
-class ProdutoResource(private val producer: ProdutoEventProducer) {
+class ProdutoResource() {
 
     @Inject
     lateinit var produtoService: ProdutoService
@@ -19,7 +19,6 @@ class ProdutoResource(private val producer: ProdutoEventProducer) {
     fun buscarPorId(@PathParam("id") id: Long): Produto {
         return produtoService.buscar(id)
     }
-
 
     @GET
     fun listar(): List<Produto> = produtoService.listar()
@@ -39,12 +38,5 @@ class ProdutoResource(private val producer: ProdutoEventProducer) {
     fun remover(@Valid produto: Produto): Response {
         return produtoService.exluir(produto)
 
-    }
-
-    @POST
-    @Produces("text/plain")
-    fun enviarMsg(@QueryParam("msg") msg: String): String {
-        producer.sendEvent(msg)
-        return "Mensagem: $msg enviada com sucesso"
     }
 }
