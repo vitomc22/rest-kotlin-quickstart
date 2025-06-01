@@ -1,2 +1,3 @@
-INSERT INTO Produto (nome, preco) VALUES ('Camiseta', 30);
-INSERT INTO Produto (nome, preco) VALUES ('Tenis', 25);
+INSERT INTO Produto (id, nome, preco) VALUES (1,'Camiseta', 30);
+INSERT INTO Produto (id,nome, preco) VALUES (2,'Tenis', 25);
+ALTER SEQUENCE produto_seq RESTART WITH 3;

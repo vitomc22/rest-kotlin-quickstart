@@ -1,50 +1,47 @@
 package org.acme.produto
 
+import ProdutoRepository
+import io.quarkus.hibernate.reactive.panache.Panache
+import io.smallrye.mutiny.Uni
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.transaction.Transactional
 import jakarta.ws.rs.NotFoundException
-import jakarta.ws.rs.core.Response
+
 
 @ApplicationScoped
-class ProdutoService {
+class ProdutoService() {
     @Inject
     lateinit var produtoRepository: ProdutoRepository
 
-    @Inject
-    lateinit var producer: ProdutoEventProducer
 
-    fun listar(): List<Produto> = produtoRepository.listAll()
-
-    fun buscar(id: Long): Produto {
-        producer.sendEvent("Produto ${id} buscado com sucesso")
-        return produtoRepository.findById(id) ?: throw NotFoundException("Produto nao encontrado")
+    fun listar(): Uni<List<Produto>> {
+        return Panache.withSession { produtoRepository.listAll() }
     }
 
-    @Transactional
-    fun adicionar(produto: Produto): Response {
-        produtoRepository.persist(produto)
-        producer.sendEvent("Produto ${produto.nome} adicionado com sucesso")
-        return Response.status(Response.Status.CREATED).entity(produto).build()
+    fun buscarPorId(id: Long): Uni<Produto> {
+        return Panache.withSession { produtoRepository.findById(id) }
+            ?: throw NotFoundException("Produto nao encontrado")
     }
 
-    @Transactional
-    fun atualizar(produto: Produto): Response {
-        val newProduto =
-            produtoRepository.findById(produto.id!!) ?: throw NotFoundException("Produto ${produto.nome} não econtrado")
-        newProduto.nome = produto.nome
-        newProduto.preco = produto.preco
-        produtoRepository.persistAndFlush(newProduto)
-        producer.sendEvent("Produto ${produto.nome} atualizado com sucesso")
-        return Response.ok("Produto: ${produto.nome} atualizado com sucesso").build()
+    fun adicionar(produto: Produto): Uni<Produto> {
+        return Panache.withTransaction { produto.persist() }
+            ?: throw IllegalArgumentException("Erro ao salvar produto: ${produto.nome}")
     }
 
-    @Transactional
-    fun exluir(produto: Produto): Response {
-        produtoRepository.findById(produto.id!!) ?: throw NotFoundException("Produto ${produto.nome} não econtrado")
-        produtoRepository.deleteById(produto.id!!)
-        producer.sendEvent("Produto ${produto.nome} excluido com sucesso")
-        return Response.noContent().build()
+    fun atualizar(produto: Produto): Uni<Produto> {
+        return produtoRepository.findById(produto.id).onItem().ifNull()
+            .failWith(NotFoundException("Produto nao encontrado")).flatMap { oldProduto ->
+                oldProduto.nome = produto.nome
+                oldProduto.preco = produto.preco
+                Panache.withTransaction { produtoRepository.persist(oldProduto) }
+            }
     }
 
+    fun excluir(produto: Produto): Uni<Void> {
+        return Panache.withTransaction {produtoRepository.deleteById(produto.id)}
+            .flatMap { deleted ->
+                if (deleted) Uni.createFrom().voidItem()
+                else Uni.createFrom().failure(NotFoundException("Produto não encontrado"))
+            }
+    }
 }
